@@ -1,6 +1,6 @@
 #![allow(unused)]
 
-use std::{f32, io};
+use std::{f32, io, thread};
 use std::cmp::Ordering;
 use rand::Rng;
 use std::ops::Add;
@@ -253,7 +253,7 @@ fn enums() {
 // when the size is exceeded, it doubles the current size, and makes a copy of the array to a new sequence.
 fn vectors() {
     let vec1: Vec<i32> = Vec::new();
-    let mut vec2: Vec<i32> = vec![1,2,3,4];
+    let mut vec2: Vec<i32> = vec![1, 2, 3, 4];
     vec2.push(5);
     println!("1st: {}", vec2[0]);
 
@@ -305,7 +305,7 @@ fn functions() {
 // that a generic type can be any type that has certain behavior.
 // Traits are like interfaces, where you define a method that can be implemented by different Types, or
 // by Generics
-fn get_sum_gen<T: Add<Output = T>>(x: T, y: T) -> T {
+fn get_sum_gen<T: Add<Output=T>>(x: T, y: T) -> T {
     x + y
 }
 
@@ -318,10 +318,10 @@ fn get_sum_gen<T: Add<Output = T>>(x: T, y: T) -> T {
 // and returns an address for that space called a pointer.
 
 // RULES
-    // 1 - Each value has a variable that is called its owner
-    // 2 - There is only one owner at a time
-    // 3 - When the owner goes out of the scope, the value disappears, as we don't have garbage collector in Rust
-    // that is the way the language free memory, making sure that the application won't allocate more memory than needed
+// 1 - Each value has a variable that is called its owner
+// 2 - There is only one owner at a time
+// 3 - When the owner goes out of the scope, the value disappears, as we don't have garbage collector in Rust
+// that is the way the language free memory, making sure that the application won't allocate more memory than needed
 fn ownership() {
     let str1: String = String::from("World");
     let str2: String = str1;
@@ -350,6 +350,7 @@ fn ownership() {
     let mut str3: String = String::from("Hello");
     let str4 = &mut str3;
     let str5 = &mut str3;
+    let str6 = &str3;
     // println!("{}", str4)
 }
 
@@ -362,7 +363,7 @@ fn hash_maps() {
     heroes.insert("Flash", "Barry Allen");
 
 
-    for (k,v) in heroes.iter() {
+    for (k, v) in heroes.iter() {
         println!("{} = {}", k, v)
     }
 
@@ -387,7 +388,7 @@ fn structs() {
         address: String,
         balance: f32,
     }
-    let mut bob: Customer = Customer{
+    let mut bob: Customer = Customer {
         name: String::from("Bob Smith"),
         address: String::from("555 Main St"),
         balance: 234.50,
@@ -404,13 +405,19 @@ fn traits() {
         fn new(length: f32, width: f32) -> Self;
         fn area(&self) -> f32;
     }
-    struct Rectangle { length: f32, width: f32 }
-    struct Circle { length: f32, width: f32 }
+    struct Rectangle {
+        length: f32,
+        width: f32,
+    }
+    struct Circle {
+        length: f32,
+        width: f32,
+    }
 
     impl Shape for Rectangle {
         fn new(length: f32, width: f32) -> Self {
             // remember we don't need to use return statement, and ; for the last statement
-            Rectangle{length, width}
+            Rectangle { length, width }
         }
 
         fn area(&self) -> f32 {
@@ -420,13 +427,14 @@ fn traits() {
 
     impl Shape for Circle {
         fn new(length: f32, width: f32) -> Self {
-            Circle{length, width}
+            Circle { length, width }
         }
 
         fn area(&self) -> f32 {
             (self.length / 2.0).powf(2.0) * PI
         }
     }
+    let circle = Circle::new(2 as f32, 2 as f32);
 }
 
 
@@ -445,7 +453,7 @@ fn error_handling() {
     let output = File::create(path);
     let mut output = match output {
         Ok(file) => file,
-        Err(err ) => panic!("Problem creating file: {:?}", err)
+        Err(err) => panic!("Problem creating file: {:?}", err)
     };
 
     output.write("Just some\nRandom words".as_ref()).expect("Failed to write to file");
@@ -534,11 +542,11 @@ fn try_to_parse() -> Result<i32, ParseIntError> {
 
 // Class 24 - HTTP Request
 
-fn http_request() -> Result<(), Box<dyn Err>> {
-    let resp = reqwest::blocking::get("https://httpbin.org/ip")?.text()?;
-    println!("{:#?}", resp);
-    Ok(())
-}
+// fn http_request() -> Result<(), Box<dyn Err>> {
+//     let resp = reqwest::blocking::get("https://httpbin.org/ip")?.text()?;
+//     println!("{:#?}", resp);
+//     Ok(())
+// }
 
 // ITERATORS
 
@@ -551,14 +559,13 @@ fn iterators() {
 
     let mut iter1 = arr_it.iter();
     println!("1st: {:?}", iter1.next());
-
 }
 
 
 // Class 25 - Closures
 
 fn closures() {
-    let can_vote:fn(i32) -> bool = |age: i32| {
+    let can_vote: fn(i32) -> bool = |age: i32| {
         age >= 18
     };
     println!("Can vote: {}", can_vote(8));
@@ -575,13 +582,12 @@ fn closures() {
 
 fn closures2() {
     fn use_func<T>(a: i32, b: i32, func: T) -> i32 where T: Fn(i32, i32) -> i32 {
-        func(a,b)
+        func(a, b)
     }
-    let sum = |a: i32, b: i32| a + b ;
-    let prod = |a: i32, b: i32| a * b ;
+    let sum = |a: i32, b: i32| a + b;
+    let prod = |a: i32, b: i32| a * b;
     println!("5 + 4 = {}", use_func(5, 4, sum));
     println!("5 * 4 = {}", use_func(5, 4, prod));
-
 }
 
 // Class 26 - Smart Pointers
@@ -606,16 +612,16 @@ fn binary_tree_box() {
             Self {
                 left: None,
                 right: None,
-                key
+                key,
             }
         }
 
-        pub fn left(mut self, node: TreeNode<T>) -> Self  {
+        pub fn left(mut self, node: TreeNode<T>) -> Self {
             self.left = Some(Box::new(node));
             self
         }
 
-        pub fn right(mut self, node: TreeNode<T>) -> Self  {
+        pub fn right(mut self, node: TreeNode<T>) -> Self {
             self.right = Some(Box::new(node));
             self
         }
@@ -661,13 +667,162 @@ fn binary_tree_box() {
     first_node.right = Some(Box::new(TreeNode::new(3)));
 
 
-
     match first_node.right {
         Some(node) => println!("{}", node.key),
         None => println!("there is no value"),
     }
 }
 
+// Class 27 - Advanced Ownership (Re-Borrowing)
+// There is one important topic on Rust, that is not covered in the majority of documentations,
+// re-borrowing, which is an exception on mutable reference borrows.
+// As we know in Rust, we can only borrow one mutable reference at a time, for example, the following code would generate
+// an error
+// let a = 0;
+// let b = &mut a;
+// let c = &mut a;
+// println!("{b}"); // an error will be generated here, because the current borrower of the mutable reference is variable c.
+
+// This next example is also going to generate an error
+// let a = 0;
+// let b = &mut a;
+// let c = b;
+// println!("{b}"); Same case, we are using b, but we moved the borrow from b to c
+
+// Let's run reborrow() function, defined above, which in first instance we think that it will generate an error, but it works
+fn reborrow() {
+    let mut a = 7;
+    let b = &mut a;
+    let c = &mut *b; //  this is called re-borrow
+    *c = 1;
+
+    println!("{b}");
+    // println!("{c}"); if we try to print c, it will generate an error, because the re-borrow already returned to b
+}
+// Why does it work ? When we use the syntax &mut *b, we are basically doing a re-borrow, which means we are temporally lending the mutable
+// reference to another, in this case, to c variable. When we use b again, the re-borrow ends, and we can't use c again.
+
+// Now the question is, why do we have the re-borrow mechanism, considering that Rust must be memory safe? One of the reasons
+// for re-borrowing, is that we might want to send a mutable reference to function call, and then use that mutable reference again when the
+// function returns. In Rust, everytime we pass a mutable reference to a function, Rust in the background forces a re-borrow.
+// Let's check this example:
+
+
+// Here, r is receiving a re-borrow of the mutable reference, and when the function ends, the re-borrow ends, and we still can use b variable.
+fn foo(r: &mut i32) {
+    *r += 1;
+}
+
+fn second_reborrow() {
+    let mut a = 7;
+    let b = &mut a; // first mutable reference borrow
+
+    foo(b); // here we are sending the mutable reference to the function, but what rust is doing behind the scenes is &mut *b
+    // this means we are re-borrowing the mutable reference that belongs, to b. We can't re-borrow from the owner, we can only re-borrow from the borrower.
+
+
+    println!("{b}"); // Expected error, `b` was moved out.
+}
+
+// This might sound really confusing, but let's think in the memory management side, on stack allocations. We know that all
+// function calls are stored in the stack, and that a stack is LIFO, so let's suppose that b borrowed a mutable reference from a.
+// This will be placed on the top of the stack, and on the next line I will re-borrow b to a function. This new function call will be
+// placed on the top of the stack, and Rust knows that there won't be any usages of b, until the new called function returns, because b it's defined
+// in the parent function scope. Therefore, the compiler knows that we can only re-use b, when the called function returns, so there won't be a concurrency,
+// which guarantees the application holds the memory safe attribute.
+
+// Furthermore, if you got this point clear, if we are in a multi-threading environment, does that still stands ?
+// Let's take a look in this example
+
+// fn start_thread(r: &mut i32) {
+//     thread::spawn( || {
+//         println!("{}", r);
+//     });
+// }
+
+fn reborrow_thread() {
+    let mut a = 7;
+    let b = &mut a;
+
+    // start_thread(b); // here we are re-borrowing, Rust is doing &mut *b in the background.
+}
+
+// If we uncomment the start_thread function and its call inside reborrow_thread, we will get the error
+// argument requires that `'1` must outlive `'static`. This means that Rust has the re-borrow mechanism, but doesn't
+// allow this value to escape to another thread, because this would require multiple references to a value, and since it's
+// not memory safe, this is not allowed.
+
+// The mechanism of re-borrow, also explains the &self arguments from implemented traits and functions,
+// when the function that has a &self is called, Rust in the background is re-borrowing its own value, to be used in the function.
+
+// Let's leave things a little bit more complicated, like mutable borrow, that we can only have one at a time, the re-borrow works the same way,
+// for example, this next function would cause an error
+fn reborrow_error() {
+    let mut a = 7;
+    let b = &mut a; // here we are passing the mutable reference to b
+    let c = &mut *b; // c is the re-borrow of b
+   // let d = &mut *b; // we moved the re-borrow of b to d
+    *c = 2; // as the re-borrow now it's with d, we can't use c, this will generate an error
+}
+
+// But, let's take a deeper look on the next function, which will work
+fn reborrow_chain() {
+    let mut a = 7;
+    let b = &mut a; // b receives the mutable borrow from a
+    let c = &mut *b; // c receives the re-borrow from b
+    let d = &mut *c; // d receives the re-borrow from c
+    *d = 2;
+    println!("{c}");
+    println!("{b}");
+}
+// This might blow your mind, why is this working ? Considering that we can only have a mutable borrow or re-borrow at a time.
+// But, if you take a deeper look, between this example, and the last one that doesn't work, this new one it's not moving the re-borrow ownership,
+// c is re-borrowing b, but d is re-borrowing c, and we may call this, re-borrowing chain. Remember, that we talked that when you execute a re-borrow,
+// once you use the variable that you re-borrowed from, the re-borrow ends? For illustrating this, let's imagine that re-borrow works like a LIFO stack,
+// so at the second re-borrow(let d = &mut *c), we will have a stack like this(don't confuse with the stack on the memory, it's metaphoric) ->
+//
+//
+//        | d re-borrow c      |    when we stop using d                             when we stop using c
+//        | c re-borrow b      |     or mention c again     | c re-borrow b      |    or mention b again
+//        | b mutable borrow a |          ====>             | b mutable borrow a |           ====>             | b mutable borrow a |
+//        | a definition       |                            | a definition       |                             | a definition       |
+
+// If we take a look in the example that generates an error
+//         | d re-borrow b      |     -> here on d variable, we are "stealing/moving" the re-borrow of b from c, if we try to use c again, it will generate an error
+//         | c re-borrow b      |
+//         | b mutable borrow a |
+//         | a definition       |
+
+// With this stack analogy, we can imagine how the compiler will think, in the sense that, I can do re-borrows in chain, because everytime I use the variable
+// I re-borrowed from, the re-borrow will end, and we will free memory allocated space, so in the workable example, if we use c again, the re-borrow that d take will end, and finally when we
+// use b, the re-borrow from c ends. Since this is a chain, if straight after doing all the re-borrows, if I use b, all the re-borrows will end.
+
+
+// I know you are tired from this, but let's do one last example:
+fn reborrow_hard() {
+    let mut foo = 1;
+    let mut borrower = &mut foo;
+
+    let rr = &mut borrower;
+    let borrower2 = &mut (**rr);
+
+    *borrower2 = 2;
+    *borrower = 3;
+
+    println!("{}", foo);
+}
+// We gave this example just to push harder, even though you will probably never see a &mut &mut i32 variable
+// on a normal Rust code, but we are doing this just to complicate. When using  &mut (**rr), we are just doing the
+// normal re-borrow, and when we use borrower again, the re-borrow that was with borrower2 goes away.
+
+fn my_function(number: i32) {
+    println!("{number}")
+
+    // If you try to execute the following print statement, it will return an error, because you moved
+    // the value from str1 to str2, and now str2 is the owner of the value, so you can't use it.
+    // println!("Hello {}", str1)
+}
+
 fn main() {
-    modules();
+  // ADD THE EXAMPLE YOU WANT TO EXECUTE
 }
